@@ -6,11 +6,13 @@ unsigned char* convertStrToLongBv(char* str, int* cells);
 char* convertBvToStr(unsigned char* vec, size_t sz);
 unsigned char* addBitVectors(unsigned char* vec, unsigned char* vec2, int cells, int cells2);
 unsigned char* multiplyBitVectors(unsigned char* vec, unsigned char* vec2, int cells, int cells2);
+unsigned char* xorBitVectors(unsigned char* vec, unsigned char* vec2, int cells);
 
 int main() {
     char* str = NULL;
     char* str2 = NULL;
     unsigned char* vec = NULL;
+    unsigned char* vec2 = NULL;
     unsigned char* result = NULL;
 
     str = "01101010";
@@ -22,11 +24,18 @@ int main() {
     cells = ((len - 1) / 8) + 1;
 
     vec = convertStrToLongBv(str, &cells);  // if (vec == NULL){printf("error1");  return 1;} должно быть тут, но мешает тестам
+    vec2 = convertStrToLongBv(str, &cells2);
     str = convertBvToStr(vec, cells);
-    result = addBitVectors(vec, vec, cells, cells2);
-    result = multiplyBitVectors(vec, vec, cells, cells2);
+    result = addBitVectors(vec, vec2, cells, cells2);
+    result = multiplyBitVectors(vec, vec2, cells, cells2);
+    result = xorBitVectors(vec, vec2, cells);
 
     if (vec == NULL){
+        printf("error1");
+        return 1;
+    }
+
+    if (vec2 == NULL){
         printf("error1");
         return 1;
     }
@@ -43,6 +52,8 @@ int main() {
 
     printf("%s", str);
     free(vec);
+    vec = NULL;
+    free(vec2);
     vec = NULL;
     free(str);
     str = NULL;
@@ -129,6 +140,21 @@ unsigned char* multiplyBitVectors(unsigned char* vec, unsigned char* vec2, int c
 
     for (int i = 0; i < cells; i++) {
         result[i] = vec[i] & vec2[i];  // побитовое И
+    }
+
+    return result;
+}
+
+unsigned char* xorBitVectors(unsigned char* vec, unsigned char* vec2, int cells) {
+    if (!vec || !vec2)
+        return NULL;
+
+    unsigned char* result = (unsigned char*)malloc(sizeof(unsigned char) * cells);
+    if (!result)
+        return NULL;
+
+    for (int i = 0; i < cells; i++) {
+        result[i] = vec[i] ^ vec2[i];  // побитовое XOR
     }
 
     return result;
