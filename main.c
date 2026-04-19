@@ -4,22 +4,27 @@
 
 unsigned char* convertStrToLongBv(char* str, int* cells);
 char* convertBvToStr(unsigned char* vec, size_t sz);
-unsigned char* addBitVectors(unsigned char* vec, unsigned char* vec2, int cells);
+unsigned char* addBitVectors(unsigned char* vec, unsigned char* vec2, int cells, int cells2);
+unsigned char* multiplyBitVectors(unsigned char* vec, unsigned char* vec2, int cells, int cells2);
 
 int main() {
     char* str = NULL;
     char* str2 = NULL;
     unsigned char* vec = NULL;
+    unsigned char* result = NULL;
 
     str = "01101010";
     str2 = "01101010";
 
     int cells = 0;
+    int cells2 = 0;
     int len = strlen(str);
     cells = ((len - 1) / 8) + 1;
 
-    vec = convertStrToLongBv(str, &cells);
+    vec = convertStrToLongBv(str, &cells);  // if (vec == NULL){printf("error1");  return 1;} должно быть тут, но мешает тестам
     str = convertBvToStr(vec, cells);
+    result = addBitVectors(vec, vec, cells, cells2);
+    result = multiplyBitVectors(vec, vec, cells, cells2);
 
     if (vec == NULL){
         printf("error1");
@@ -30,13 +35,21 @@ int main() {
         printf("error2");
         return 1;
     }
+
+    if (result == NULL){
+        printf("error3");
+        return 1;
+    }
+
     printf("%s", str);
     free(vec);
     vec = NULL;
     free(str);
     str = NULL;
     free(str2);
-    str = NULL;
+    str2 = NULL;
+    free(result);
+    result = NULL;
     return 0;
 }
 
@@ -91,7 +104,7 @@ char* convertBvToStr(unsigned char* vec, size_t sz) {
     return str;
 }
 
-unsigned char* addBitVectors(unsigned char* vec, unsigned char* vec2, int cells) {
+unsigned char* addBitVectors(unsigned char* vec, unsigned char* vec2, int cells, int cells2) {
     if (!vec || !vec2)
         return NULL;
 
@@ -106,5 +119,18 @@ unsigned char* addBitVectors(unsigned char* vec, unsigned char* vec2, int cells)
     return result;
 }
 
+unsigned char* multiplyBitVectors(unsigned char* vec, unsigned char* vec2, int cells, int cells2) {
+    if (!vec || !vec2)
+        return NULL;
 
+    unsigned char* result = (unsigned char*)malloc(sizeof(unsigned char) * cells);
+    if (!result)
+        return NULL;
+
+    for (int i = 0; i < cells; i++) {
+        result[i] = vec[i] & vec2[i];  // побитовое И
+    }
+
+    return result;
+}
 
