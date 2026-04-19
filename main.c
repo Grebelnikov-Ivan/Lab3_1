@@ -4,6 +4,7 @@
 
 unsigned char* convertStrToLongBv(char* str, int* cells);
 char* convertBvToStr(unsigned char* vec, size_t sz);
+unsigned char* addBitVectors(unsigned char* vec, unsigned char* vec2, int cells);
 
 int main() {
     char* str = NULL;
@@ -89,5 +90,21 @@ char* convertBvToStr(unsigned char* vec, size_t sz) {
     str[bit_count] = '\0';
     return str;
 }
+
+unsigned char* addBitVectors(unsigned char* vec, unsigned char* vec2, int cells) {
+    if (!vec || !vec2)
+        return NULL;
+
+    unsigned char* result = (unsigned char*)malloc(sizeof(unsigned char) * cells);
+    if (!result)
+        return NULL;
+
+    for (int i = 0; i < cells; i++) {
+        result[i] = vec[i] | vec2[i];  // побитовое ИЛИ
+    }
+
+    return result;
+}
+
 
 
