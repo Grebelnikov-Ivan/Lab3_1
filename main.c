@@ -7,7 +7,8 @@ char* convertBvToStr(unsigned char* vec, size_t sz);
 unsigned char* addBitVectors(unsigned char* vec, unsigned char* vec2, size_t cells, size_t cells2);
 unsigned char* multiplyBitVectors(unsigned char* vec, unsigned char* vec2, size_t cells, size_t cells2);
 unsigned char* xorBitVectors(unsigned char* vec, unsigned char* vec2, size_t cells, size_t cells2);
-int set_bit_1(unsigned char *vec, size_t k);
+int set_bit_1(unsigned char *vec, size_t len, size_t k);
+int set_bit_0(unsigned char *vec, size_t len, size_t k);
 
 int main() {
     char* str = NULL;
@@ -30,9 +31,15 @@ int main() {
     result = addBitVectors(vec, vec2, cells, cells2);
     result = multiplyBitVectors(vec, vec2, cells, cells2);
     result = xorBitVectors(vec, vec2, cells, cells2);
-    int r = set_bit_1(vec, 0);
+    int r = set_bit_1(vec, len, 0);
+    int r2 = set_bit_0(vec, len, 0);
 
     if (r == 0){
+        printf("error1");
+        return 1;
+    }
+
+    if (r2 == 0){
         printf("error1");
         return 1;
     }
@@ -167,17 +174,30 @@ unsigned char* xorBitVectors(unsigned char* vec, unsigned char* vec2, size_t cel
     return result;
 }
 
-int set_bit_1(unsigned char *vec, size_t k)
+int set_bit_1(unsigned char *vec, size_t len, size_t k)
 {
-    if (!vec)
+    if (!vec || k >= len)
         return 1;
     size_t byte = k / 8;
     size_t bit = k % 8;
     unsigned char mask = 1;
-
     size_t shift = 7 - bit; //01000000 при 2
 
     mask = mask << shift;
     vec[byte] = vec[byte] | mask;
+    return 0;
+}
+
+int set_bit_0(unsigned char *vec, size_t len, size_t k)
+{
+    if (!vec || k >= len)
+        return 1;
+    size_t byte = k / 8;
+    size_t bit = k % 8;
+    unsigned char mask = 1;
+    size_t shift = 7 - bit;
+
+    mask = mask << shift;
+    vec[byte] = mask & ~mask;
     return 0;
 }
