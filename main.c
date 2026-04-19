@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 unsigned char* convertStrToLongBv(char* str, int* cells);
-
+char* convertBvToStr(unsigned char* vec, size_t sz);
 
 int main() {
     char* str = NULL;
@@ -18,16 +18,23 @@ int main() {
     cells = ((len - 1) / 8) + 1;
 
     vec = convertStrToLongBv(str, &cells);
+    str = convertBvToStr(vec, cells);
 
     if (vec == NULL){
         printf("error1");
         return 1;
     }
 
+    if (str == NULL){
+        printf("error2");
+        return 1;
+    }
     printf("%s", str);
     free(vec);
     vec = NULL;
     free(str);
+    str = NULL;
+    free(str2);
     str = NULL;
     return 0;
 }
@@ -53,6 +60,34 @@ unsigned char* convertStrToLongBv(char* str, int* cells){
         }
     }
     return vec;
+}
+
+
+char* convertBvToStr(unsigned char* vec, size_t sz) {
+    if (!vec)
+        return NULL;
+
+    size_t bit_count = sz * 8;
+    char* str = (char*)malloc(bit_count + 1);
+    if (!str)
+        return NULL;
+
+    size_t str_idx = 0;
+
+    for (size_t byte_idx = 0; byte_idx < sz; byte_idx++) {
+        unsigned char mask = 1;
+        for (int bit = 0; bit < 8; bit++) {
+            if ((vec[byte_idx] & mask) != 0)
+                str[str_idx] = '1';
+            else
+                str[str_idx] = '0';
+            mask = mask << 1;
+            str_idx++;
+        }
+    }
+
+    str[bit_count] = '\0';
+    return str;
 }
 
 
