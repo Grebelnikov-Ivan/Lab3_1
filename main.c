@@ -2,11 +2,12 @@
 #include <string.h>
 #include <stdlib.h>
 
-unsigned char* convertStrToLongBv(char* str, int* cells);
+unsigned char* convertStrToLongBv(char* str, size_t* cells);
 char* convertBvToStr(unsigned char* vec, size_t sz);
-unsigned char* addBitVectors(unsigned char* vec, unsigned char* vec2, int cells, int cells2);
-unsigned char* multiplyBitVectors(unsigned char* vec, unsigned char* vec2, int cells, int cells2);
-unsigned char* xorBitVectors(unsigned char* vec, unsigned char* vec2, int cells);
+unsigned char* addBitVectors(unsigned char* vec, unsigned char* vec2, size_t cells, size_t cells2);
+unsigned char* multiplyBitVectors(unsigned char* vec, unsigned char* vec2, size_t cells, size_t cells2);
+unsigned char* xorBitVectors(unsigned char* vec, unsigned char* vec2, size_t cells, size_t cells2);
+int set_bit_1(unsigned char *vec, size_t k);
 
 int main() {
     char* str = NULL;
@@ -18,9 +19,9 @@ int main() {
     str = "01101010";
     str2 = "01101010";
 
-    int cells = 0;
-    int cells2 = 0;
-    int len = strlen(str);
+    size_t cells = 0;
+    size_t cells2 = 0;
+    size_t len = strlen(str);
     cells = ((len - 1) / 8) + 1;
 
     vec = convertStrToLongBv(str, &cells);  // if (vec == NULL){printf("error1");  return 1;} должно быть тут, но мешает тестам
@@ -28,7 +29,13 @@ int main() {
     str = convertBvToStr(vec, cells);
     result = addBitVectors(vec, vec2, cells, cells2);
     result = multiplyBitVectors(vec, vec2, cells, cells2);
-    result = xorBitVectors(vec, vec2, cells);
+    result = xorBitVectors(vec, vec2, cells, cells2);
+    int r = set_bit_1(vec, 0);
+
+    if (r == 0){
+        printf("error1");
+        return 1;
+    }
 
     if (vec == NULL){
         printf("error1");
@@ -64,20 +71,20 @@ int main() {
     return 0;
 }
 
-unsigned char* convertStrToLongBv(char* str, int* cells){
+unsigned char* convertStrToLongBv(char* str, size_t* cells){
     if (!(str && cells))
         return NULL;
-    int len = 0, ix = 0;
+    size_t len = 0, ix = 0;
     unsigned char mask = (1 << 7);
     len = strlen(str);
     *cells = ((len - 1) / 8) + 1;
     unsigned char* vec = (unsigned char*)malloc(sizeof (unsigned char) * (*cells));
     if (!(vec))
         return NULL;
-    for (int i = 0; i < *cells; i++)
+    for (size_t i = 0; i < *cells; i++)
         vec[i] = 0;
-    for (int i = 0; i < *cells; i++){
-        for (int j = 0; j < 8 && (ix < len); j++){
+    for (size_t i = 0; i < *cells; i++){
+        for (size_t j = 0; j < 8 && (ix < len); j++){
             vec[i] = vec[i] >> 1;
             if (str[ix] != '0')
                 vec[i] |= mask;
@@ -101,7 +108,7 @@ char* convertBvToStr(unsigned char* vec, size_t sz) {
 
     for (size_t byte_idx = 0; byte_idx < sz; byte_idx++) {
         unsigned char mask = 1;
-        for (int bit = 0; bit < 8; bit++) {
+        for (size_t bit = 0; bit < 8; bit++) {
             if ((vec[byte_idx] & mask) != 0)
                 str[str_idx] = '1';
             else
@@ -115,48 +122,62 @@ char* convertBvToStr(unsigned char* vec, size_t sz) {
     return str;
 }
 
-unsigned char* addBitVectors(unsigned char* vec, unsigned char* vec2, int cells, int cells2) {
-    if (!vec || !vec2)
+unsigned char* addBitVectors(unsigned char* vec, unsigned char* vec2, size_t cells, size_t cells2) {
+    if (!vec || !vec2 || (cells != cells2))
         return NULL;
 
     unsigned char* result = (unsigned char*)malloc(sizeof(unsigned char) * cells);
     if (!result)
         return NULL;
 
-    for (int i = 0; i < cells; i++) {
+    for (size_t i = 0; i < cells; i++) {
         result[i] = vec[i] | vec2[i];  // побитовое ИЛИ
     }
 
     return result;
 }
 
-unsigned char* multiplyBitVectors(unsigned char* vec, unsigned char* vec2, int cells, int cells2) {
-    if (!vec || !vec2)
+unsigned char* multiplyBitVectors(unsigned char* vec, unsigned char* vec2, size_t cells, size_t cells2) {
+    if (!vec || !vec2 || (cells != cells2))
         return NULL;
 
     unsigned char* result = (unsigned char*)malloc(sizeof(unsigned char) * cells);
     if (!result)
         return NULL;
 
-    for (int i = 0; i < cells; i++) {
+    for (size_t i = 0; i < cells; i++) {
         result[i] = vec[i] & vec2[i];  // побитовое И
     }
 
     return result;
 }
 
-unsigned char* xorBitVectors(unsigned char* vec, unsigned char* vec2, int cells) {
-    if (!vec || !vec2)
+unsigned char* xorBitVectors(unsigned char* vec, unsigned char* vec2, size_t cells, size_t cells2) {
+    if (!vec || !vec2 || (cells != cells2))
         return NULL;
 
     unsigned char* result = (unsigned char*)malloc(sizeof(unsigned char) * cells);
     if (!result)
         return NULL;
 
-    for (int i = 0; i < cells; i++) {
+    for (size_t i = 0; i < cells; i++) {
         result[i] = vec[i] ^ vec2[i];  // побитовое XOR
     }
 
     return result;
 }
 
+int set_bit_1(unsigned char *vec, size_t k)
+{
+    if (!vec)
+        return 1;
+    size_t byte = k / 8;
+    size_t bit = k % 8;
+    unsigned char mask = 1;
+
+    size_t shift = 7 - bit; //01000000 при 2
+
+    mask = mask << shift;
+    vec[byte] = vec[byte] | mask;
+    return 0;
+}
