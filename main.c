@@ -11,74 +11,175 @@ int set_bit_1(unsigned char *vec, size_t len, size_t k);
 int set_bit_0(unsigned char *vec, size_t len, size_t k);
 unsigned char* inversBitVectorCopy(unsigned char* vec, size_t len);
 
-
 int main() {
-    char* str = NULL;
-    char* str2 = NULL;
-    unsigned char* vec = NULL;
-    unsigned char* vec2 = NULL;
-    unsigned char* result = NULL;
+    // char* str1 = "11101000";
+    char* str2 = "01101010";
+    char* str1 = "00000000";
 
-    str = "01101010";
-    str2 = "01101010";
 
-    size_t cells = 0;
-    size_t cells2 = 0;
-    size_t len = strlen(str);
-    cells = ((len - 1) / 8) + 1;
+    size_t cells1 = 0, cells2 = 0;
+    size_t len1 = strlen(str1);
+    size_t len2 = strlen(str2);
+    cells1 = ((len1 - 1) / 8) + 1;
+    cells2 = ((len2 - 1) / 8) + 1;
 
-    vec = convertStrToLongBv(str, &cells);  // if (vec == NULL){printf("error1");  return 1;} и т.д должно быть тут, но мешает тестам
-    vec2 = convertStrToLongBv(str, &cells2);
-    str = convertBvToStr(vec, cells);
-    result = addBitVectors(vec, vec2, cells, cells2);
-    result = multiplyBitVectors(vec, vec2, cells, cells2);
-    result = xorBitVectors(vec, vec2, cells, cells2);
-    result = inversBitVectorCopy(vec, len);
-
-    int r = set_bit_1(vec, len, 0);
-    int r2 = set_bit_0(vec, len, 0);
-
-    if (r != 0){
+    // Конвертация строк в битовые векторы
+    unsigned char* vec1 = convertStrToLongBv(str1, &cells1);
+    if (vec1 == NULL) {
         printf("error1");
         return 1;
     }
 
-    if (r2 != 0){
+    unsigned char* vec2 = convertStrToLongBv(str2, &cells2);
+    if (vec2 == NULL) {
         printf("error1");
+        free(vec1);
         return 1;
     }
 
-    if (vec == NULL){
-        printf("error1");
-        return 1;
-    }
-
-    if (vec2 == NULL){
-        printf("error1");
-        return 1;
-    }
-
-    if (str == NULL){
+    // исходные векторы
+    char* vec1_str = convertBvToStr(vec1, cells1);
+    if (vec1_str == NULL) {
         printf("error2");
+        free(vec1);
+        free(vec2);
         return 1;
     }
 
-    if (result == NULL){
+    char* vec2_str = convertBvToStr(vec2, cells2);
+    if (vec2_str == NULL) {
+        printf("error2");
+        free(vec1_str);
+        free(vec1);
+        free(vec2);
+        return 1;
+    }
+
+    printf("v1: %s\n", vec1_str);
+    printf("v2: %s\n", vec2_str);
+    free(vec1_str);
+    free(vec2_str);
+    printf("\n");
+
+    // +
+    unsigned char* add_res = addBitVectors(vec1, vec2, cells1, cells2);
+    if (add_res == NULL) {
         printf("error3");
+        free(vec1);
+        free(vec2);
         return 1;
     }
+    char* add_str = convertBvToStr(add_res, cells1);
+    if (add_str == NULL) {
+        printf("error2");
+        free(add_res);
+        free(vec1);
+        free(vec2);
+        return 1;
+    }
+    printf("+    %s\n", add_str);
+    free(add_str);
+    free(add_res);
 
-    printf("%s", str);
-    free(vec);
-    vec = NULL;
+    // *
+    unsigned char* mul_res = multiplyBitVectors(vec1, vec2, cells1, cells2);
+    if (mul_res == NULL) {
+        printf("error3");
+        free(vec1);
+        free(vec2);
+        return 1;
+    }
+    char* mul_str = convertBvToStr(mul_res, cells1);
+    if (mul_str == NULL) {
+        printf("error2");
+        free(mul_res);
+        free(vec1);
+        free(vec2);
+        return 1;
+    }
+    printf("*    %s\n", mul_str);
+    free(mul_str);
+    free(mul_res);
+
+    // xor
+    unsigned char* xor_res = xorBitVectors(vec1, vec2, cells1, cells2);
+    if (xor_res == NULL) {
+        printf("error3");
+        free(vec1);
+        free(vec2);
+        return 1;
+    }
+    char* xor_str = convertBvToStr(xor_res, cells1);
+    if (xor_str == NULL) {
+        printf("error2");
+        free(xor_res);
+        free(vec1);
+        free(vec2);
+        return 1;
+    }
+    printf("xor  %s\n", xor_str);
+    free(xor_str);
+    free(xor_res);
+
+    // ~
+    unsigned char* inv_res = inversBitVectorCopy(vec1, len1);
+    if (inv_res == NULL) {
+        printf("error3");
+        free(vec1);
+        free(vec2);
+        return 1;
+    }
+    char* inv_str = convertBvToStr(inv_res, cells1);
+    if (inv_str == NULL) {
+        printf("error2");
+        free(inv_res);
+        free(vec1);
+        free(vec2);
+        return 1;
+    }
+    printf("~    %s\n", inv_str);
+    free(inv_str);
+    free(inv_res);
+
+    // установка бита 3 в 1
+    int r1 = set_bit_1(vec1, len1, 7);
+    if (r1 != 0) {
+        printf("error1");
+        free(vec1);
+        free(vec2);
+        return 1;
+    }
+    char* set1 = convertBvToStr(vec1, cells1);
+    if (set1 == NULL) {
+        printf("error2");
+        free(vec1);
+        free(vec2);
+        return 1;
+    }
+    printf("set1 %s\n", set1);
+    free(set1);
+
+    // сброс бита 3 в 0
+    int r2 = set_bit_0(vec1, len1, 7);
+    if (r2 != 0) {
+        printf("error1");
+        free(vec1);
+        free(vec2);
+        return 1;
+    }
+    char* set0 = convertBvToStr(vec1, cells1);
+    if (set0 == NULL) {
+        printf("error2");
+        free(vec1);
+        free(vec2);
+        return 1;
+    }
+    printf("set0 %s\n", set0);
+    free(set0);
+
+    free(vec1);
     free(vec2);
-    vec = NULL;
-    free(str);
-    str = NULL;
-    free(str2);
-    str2 = NULL;
-    free(result);
-    result = NULL;
+
     return 0;
 }
 
@@ -202,7 +303,7 @@ int set_bit_0(unsigned char *vec, size_t len, size_t k)
     size_t shift = 7 - bit;
 
     mask = mask << shift;
-    vec[byte] = mask & ~mask;
+    vec[byte] = vec[byte] & ~mask;
     return 0;
 }
 
