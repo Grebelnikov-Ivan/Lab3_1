@@ -10,11 +10,13 @@ unsigned char* xorBitVectors(unsigned char* vec, unsigned char* vec2, size_t cel
 int set_bit_1(unsigned char *vec, size_t len, size_t k);
 int set_bit_0(unsigned char *vec, size_t len, size_t k);
 unsigned char* inversBitVectorCopy(unsigned char* vec, size_t len);
+int shift_left_bit_vector(unsigned char *vec, size_t len, size_t k);
+int shift_right_bit_vector(unsigned char *vec, size_t len, size_t k);
 
 int main() {
-    // char* str1 = "11101000";
-    char* str2 = "01101010";
-    char* str1 = "00000000";
+    char* str1 = "10011000";
+    char* str2 = "00011010";
+    //char* str1 = "00000000";
 
 
     size_t cells1 = 0, cells2 = 0;
@@ -123,6 +125,7 @@ int main() {
 
     // ~
     unsigned char* inv_res = inversBitVectorCopy(vec1, len1);
+    printf("xor * inv %s\n", convertBvToStr(multiplyBitVectors(xorBitVectors(vec1, vec2, cells1, cells2), inv_res, cells1, cells2), 1));
     if (inv_res == NULL) {
         printf("error3");
         free(vec1);
@@ -142,7 +145,7 @@ int main() {
     free(inv_res);
 
     // установка бита 3 в 1
-    int r1 = set_bit_1(vec1, len1, 7);
+    int r1 = set_bit_1(vec1, len1, 6);
     if (r1 != 0) {
         printf("error1");
         free(vec1);
@@ -334,4 +337,16 @@ unsigned char* inversBitVectorCopy(unsigned char* vec, size_t len)
     }
 
     return result;
+}
+
+int shift_left_bit_vector(unsigned char *vec, size_t len, size_t k)
+{
+
+    return 0;
+}
+
+int shift_right_bit_vector(unsigned char *vec, size_t len, size_t k)
+{
+
+    return 0;
 }
