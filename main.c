@@ -231,8 +231,6 @@ unsigned char* inversBitVectorCopy(unsigned char* vec, size_t len)
         }
         result[last_byte_idx] &= mask;
     }
-    else
-        return NULL;
 
     return result;
 }
