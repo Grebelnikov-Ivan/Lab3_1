@@ -9,6 +9,8 @@ unsigned char* multiplyBitVectors(unsigned char* vec, unsigned char* vec2, size_
 unsigned char* xorBitVectors(unsigned char* vec, unsigned char* vec2, size_t cells, size_t cells2);
 int set_bit_1(unsigned char *vec, size_t len, size_t k);
 int set_bit_0(unsigned char *vec, size_t len, size_t k);
+unsigned char* inversBitVectorCopy(unsigned char* vec, size_t len);
+
 
 int main() {
     char* str = NULL;
@@ -25,21 +27,23 @@ int main() {
     size_t len = strlen(str);
     cells = ((len - 1) / 8) + 1;
 
-    vec = convertStrToLongBv(str, &cells);  // if (vec == NULL){printf("error1");  return 1;} должно быть тут, но мешает тестам
+    vec = convertStrToLongBv(str, &cells);  // if (vec == NULL){printf("error1");  return 1;} и т.д должно быть тут, но мешает тестам
     vec2 = convertStrToLongBv(str, &cells2);
     str = convertBvToStr(vec, cells);
     result = addBitVectors(vec, vec2, cells, cells2);
     result = multiplyBitVectors(vec, vec2, cells, cells2);
     result = xorBitVectors(vec, vec2, cells, cells2);
+    result = inversBitVectorCopy(vec, len);
+
     int r = set_bit_1(vec, len, 0);
     int r2 = set_bit_0(vec, len, 0);
 
-    if (r == 0){
+    if (r != 0){
         printf("error1");
         return 1;
     }
 
-    if (r2 == 0){
+    if (r2 != 0){
         printf("error1");
         return 1;
     }
@@ -200,4 +204,35 @@ int set_bit_0(unsigned char *vec, size_t len, size_t k)
     mask = mask << shift;
     vec[byte] = mask & ~mask;
     return 0;
+}
+
+unsigned char* inversBitVectorCopy(unsigned char* vec, size_t len)
+{
+    if (!vec)
+        return NULL;
+
+    size_t bytes = ((len - 1) / 8) + 1;
+    size_t last_bits = len % 8;
+
+    unsigned char* result = (unsigned char*)malloc(bytes);
+    if (!result)
+        return NULL;
+
+    for (size_t i = 0; i < bytes; i++) {
+        result[i] = ~vec[i]; // всё инвертируем
+    }
+
+    // Очищаем хвост
+    if (last_bits != 0) {
+        size_t last_byte_idx = bytes - 1; // нужен только последний(там хвост)
+        unsigned char mask = 0;
+        for (size_t j = 0; j < last_bits; j++) {
+            mask = mask | (1 << (7 - j));  // нужна маска где 11..и нужное кол-во нулей 100 010 001 111
+        }
+        result[last_byte_idx] &= mask;
+    }
+    else
+        return NULL;
+
+    return result;
 }
