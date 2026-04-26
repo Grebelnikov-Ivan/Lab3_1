@@ -25,7 +25,7 @@ int main() {
     size_t bits2 = strlen(str2);
 
     // Конвертация строк в битовые векторы
-    unsigned char* vec1 = convertStrToLongBv(str1, &bits1); // & адрес на bits1
+    unsigned char* vec1 = convertStrToLongBv(str1, &bits1);
     if (vec1 == NULL) {
         printf("error11");
         return 1;
@@ -35,6 +35,7 @@ int main() {
     if (vec2 == NULL) {
         printf("error12");
         free(vec1);
+        vec1 = NULL;
         return 1;
     }
 
@@ -44,6 +45,8 @@ int main() {
         printf("error2");
         free(vec1);
         free(vec2);
+        vec1 = NULL;
+        vec2 = NULL;
         return 1;
     }
 
@@ -53,13 +56,18 @@ int main() {
         free(vec1_str);
         free(vec1);
         free(vec2);
+        vec1_str = NULL;
+        vec1 = NULL;
+        vec2 = NULL;
         return 1;
     }
 
     printf("v1 %s\n", vec1_str);
     printf("v2 %s\n", vec2_str);
     free(vec1_str);
+    vec1_str = NULL;
     free(vec2_str);
+    vec2_str = NULL;
     printf("\n");
 
     // +
@@ -68,6 +76,8 @@ int main() {
         printf("error3");
         free(vec1);
         free(vec2);
+        vec1 = NULL;
+        vec2 = NULL;
         return 1;
     }
     char* add_str = convertBvToStr(add_res, bits1);
@@ -76,11 +86,16 @@ int main() {
         free(add_res);
         free(vec1);
         free(vec2);
+        add_res = NULL;
+        vec1 = NULL;
+        vec2 = NULL;
         return 1;
     }
-    printf("+  %s\n", add_str);
+    printf("+ %s\n", add_str);
     free(add_str);
+    add_str = NULL;
     free(add_res);
+    add_res = NULL;
 
     // *
     unsigned char* mul_res = logMul(vec1, bits1, vec2, bits2);
@@ -88,6 +103,8 @@ int main() {
         printf("error3");
         free(vec1);
         free(vec2);
+        vec1 = NULL;
+        vec2 = NULL;
         return 1;
     }
     char* mul_str = convertBvToStr(mul_res, bits1);
@@ -96,11 +113,16 @@ int main() {
         free(mul_res);
         free(vec1);
         free(vec2);
+        mul_res = NULL;
+        vec1 = NULL;
+        vec2 = NULL;
         return 1;
     }
-    printf("&  %s\n", mul_str);
+    printf("& %s\n", mul_str);
     free(mul_str);
+    mul_str = NULL;
     free(mul_res);
+    mul_res = NULL;
 
     // xor
     unsigned char* xor_res = sumMod2(vec1, bits1, vec2, bits2);
@@ -108,6 +130,8 @@ int main() {
         printf("error3");
         free(vec1);
         free(vec2);
+        vec1 = NULL;
+        vec2 = NULL;
         return 1;
     }
     char* xor_str = convertBvToStr(xor_res, bits1);
@@ -116,11 +140,16 @@ int main() {
         free(xor_res);
         free(vec1);
         free(vec2);
+        xor_res = NULL;
+        vec1 = NULL;
+        vec2 = NULL;
         return 1;
     }
     printf("xor %s\n", xor_str);
     free(xor_str);
+    xor_str = NULL;
     free(xor_res);
+    xor_res = NULL;
 
     // инверсия
     inversion(vec1, bits1);
@@ -129,25 +158,31 @@ int main() {
         printf("error2");
         free(vec1);
         free(vec2);
+        vec1 = NULL;
+        vec2 = NULL;
         return 1;
     }
-    printf("~ v1 %s\n", inv_str);
+    printf("~ %s\n", inv_str);
     free(inv_str);
+    inv_str = NULL;
 
     // инвертируем обратно для дальнейших тестов
     inversion(vec1, bits1);
 
-    // установка бита 7 в 0
+    // установка бита 7 в 1
     set1(vec1, bits1, 7);
     char* set1_str = convertBvToStr(vec1, bits1);
     if (set1_str == NULL) {
         printf("error2");
         free(vec1);
         free(vec2);
+        vec1 = NULL;
+        vec2 = NULL;
         return 1;
     }
-    printf("set bit 1 7 in 0 %s\n", set1_str);
+    printf("set1 %s\n", set1_str);
     free(set1_str);
+    set1_str = NULL;
 
     // сброс бита 0 в 0
     set0(vec1, bits1, 0);
@@ -156,17 +191,316 @@ int main() {
         printf("error2");
         free(vec1);
         free(vec2);
+        vec1 = NULL;
+        vec2 = NULL;
         return 1;
     }
-    printf("set bit 0 0 in 0 %s\n", set0_str);
+    printf("set0 %s\n", set0_str);
     free(set0_str);
+    set0_str = NULL;
 
-    printf("v1 in memory ");
+    printf("memory ");
     printVectAsInMemory(vec1, bits1);
-    printf("\n");
+    printf("\n\n");
 
     free(vec1);
+    vec1 = NULL;
     free(vec2);
+    vec2 = NULL;
+
+    // ==================== ДОПОЛНИТЕЛЬНЫЕ ТЕСТЫ ====================
+
+    // Тест 1: 1000111010110101
+    printf("test1 ");
+    int cells = 0;
+    unsigned char test1[] = "1000111010110101";
+    unsigned char* bv1 = convertStrToLongBv(test1, &cells);
+    if (!bv1) {
+        printf("error converting str\n");
+        return 0;
+    }
+    printVectAsInMemory(bv1, 16);
+    printf("\n\n");
+    free(bv1);
+    bv1 = NULL;
+
+    // Тест 2: длинная строка 122 бита
+    printf("test2 ");
+    unsigned char test2[] = "00111000011011100001101110000010001110110100111011010011101110011100001101110000110111000001000111011010011101101001110111";
+    unsigned char* bv2 = convertStrToLongBv(test2, &cells);
+    if (!bv2) {
+        printf("error converting str\n");
+        return 0;
+    }
+    printVectAsInMemory(bv2, 122);
+    printf("\n");
+    unsigned char* bv2_str = convertBvToStr(bv2, 122);
+    if (!bv2_str) {
+        printf("error reconverting\n");
+        free(bv2);
+        bv2 = NULL;
+        return 0;
+    }
+    printf("str %s\n\n", bv2_str);
+    free(bv2_str);
+    bv2_str = NULL;
+    free(bv2);
+    bv2 = NULL;
+
+    // Тест 3: сумма по модулю 2 (61 бит)
+    printf("test3 xor\n");
+    unsigned char test3_1[] = "1100010110110001011011000101101100010110110001011011000101101";
+    unsigned char test3_2[] = "1111110111011111011101111101100100101101100010110110001011010";
+    unsigned char* vec3_1 = convertStrToLongBv(test3_1, &cells);
+    unsigned char* vec3_2 = convertStrToLongBv(test3_2, &cells);
+    if (!vec3_1 || !vec3_2) {
+        printf("error converting\n");
+        free(vec3_1);
+        free(vec3_2);
+        vec3_1 = NULL;
+        vec3_2 = NULL;
+        return 0;
+    }
+    printVectAsInMemory(vec3_1, 61);
+    printf("\n");
+    printVectAsInMemory(vec3_2, 61);
+    printf("\n");
+    unsigned char* vec3_3 = sumMod2(vec3_1, 61, vec3_2, 61);
+    if (!vec3_3) {
+        printf("error xor\n");
+        free(vec3_1);
+        free(vec3_2);
+        vec3_1 = NULL;
+        vec3_2 = NULL;
+        return 0;
+    }
+    printVectAsInMemory(vec3_3, 61);
+    printf("\n\n");
+    free(vec3_1);
+    vec3_1 = NULL;
+    free(vec3_2);
+    vec3_2 = NULL;
+    free(vec3_3);
+    vec3_3 = NULL;
+
+    // Тест 4: инверсия
+    printf("test4 inv\n");
+    unsigned char test4[] = "1000111010110011";
+    unsigned char* vec4 = convertStrToLongBv(test4, &cells);
+    if (!vec4) {
+        printf("error converting\n");
+        return 0;
+    }
+    printVectAsInMemory(vec4, 16);
+    printf("\n");
+    inversion(vec4, 16);
+    printVectAsInMemory(vec4, 16);
+    printf("\n\n");
+    free(vec4);
+    vec4 = NULL;
+
+    // Тест 5: сдвиг вправо на 20 с восстановлением
+    printf("test5 >>20\n");
+    unsigned char test5[] = "0011100001101110000110111000001000111011010011101101001110111";
+    unsigned char* vec5 = convertStrToLongBv(test5, &cells);
+    if (!vec5) {
+        printf("error converting\n");
+        return 0;
+    }
+    printVectAsInMemory(vec5, 66);
+    printf("\n");
+    shiftRight(vec5, 61, 20);
+    printVectAsInMemory(vec5, 66);
+    printf("\nback ");
+    shiftLeft(vec5, 61, 20);
+    printVectAsInMemory(vec5, 66);
+    printf("\n\n");
+    free(vec5);
+    vec5 = NULL;
+
+    // Тест 6: сдвиг влево на 30 с восстановлением
+    printf("test6 <<30\n");
+    unsigned char test6[] = "0011100001101110000110111000001000111011010011101101001110111";
+    unsigned char* vec6 = convertStrToLongBv(test6, &cells);
+    if (!vec6) {
+        printf("error converting\n");
+        return 0;
+    }
+    printVectAsInMemory(vec6, 61);
+    printf("\n");
+    shiftLeft(vec6, 61, 30);
+    printVectAsInMemory(vec6, 61);
+    printf("\nback ");
+    shiftRight(vec6, 61, 30);
+    printVectAsInMemory(vec6, 61);
+    printf("\n\n");
+    free(vec6);
+    vec6 = NULL;
+
+    // Тест 7: установка/сброс битов
+    printf("test7 set1/set0\n");
+    unsigned char test7[] = "01111111";
+    unsigned char* vec7 = convertStrToLongBv(test7, &cells);
+    if (!vec7) {
+        printf("error converting\n");
+        return 0;
+    }
+    printVectAsInMemory(vec7, 8);
+    printf("\n");
+    set1(vec7, 8, 0);
+    printVectAsInMemory(vec7, 8);
+    printf("\n");
+    set0(vec7, 8, 3);
+    printVectAsInMemory(vec7, 8);
+    printf("\n\n");
+    free(vec7);
+    vec7 = NULL;
+
+    // Тест 8: преобразование "100001"
+    printf("test8 ");
+    unsigned char test8[] = "100001";
+    unsigned char* bv8 = convertStrToLongBv(test8, &cells);
+    if (bv8) {
+        printVectAsInMemory(bv8, 6);
+        printf("\n\n");
+        free(bv8);
+        bv8 = NULL;
+    }
+
+    // Тест 9: преобразование "10110"
+    printf("test9 ");
+    unsigned char test9[] = "10110";
+    unsigned char* bv9 = convertStrToLongBv(test9, &cells);
+    if (bv9) {
+        printVectAsInMemory(bv9, 5);
+        printf("\n\n");
+        free(bv9);
+        bv9 = NULL;
+    }
+
+    // Тест 10: преобразование "1"
+    printf("test10 ");
+    unsigned char test10[] = "1";
+    unsigned char* bv10 = convertStrToLongBv(test10, &cells);
+    if (bv10) {
+        printVectAsInMemory(bv10, 1);
+        printf("\n\n");
+        free(bv10);
+        bv10 = NULL;
+    }
+
+    printf("test11 errors\n");
+
+    // Пустая строка
+    unsigned char test11_1[] = "";
+    unsigned char* bv11_1 = convertStrToLongBv(test11_1, &cells);
+    if (!bv11_1) {
+        printf("empty str - error\n");
+    }
+
+    // NULL строка
+    unsigned char* bv11_2 = convertStrToLongBv(NULL, &cells);
+    if (!bv11_2) {
+        printf("NULL str - error\n");
+    }
+
+    // NULL bits
+    unsigned char* bv11_3 = convertStrToLongBv(test8, NULL);
+    if (!bv11_3) {
+        printf("NULL cells - error\n");
+    }
+
+    // xor с разной длиной
+    unsigned char test11_4[] = "1111";
+    unsigned char test11_5[] = "11111";
+    unsigned char* bv11_4 = convertStrToLongBv(test11_4, &cells);
+    unsigned char* bv11_5 = convertStrToLongBv(test11_5, &cells);
+    if (bv11_4 && bv11_5) {
+        unsigned char* bad_res = sumMod2(bv11_4, 4, bv11_5, 5);
+        if (!bad_res) {
+            printf("xor dif bits - error\n");
+        }
+        free(bv11_4);
+        free(bv11_5);
+        bv11_4 = NULL;
+        bv11_5 = NULL;
+    }
+
+    // xor с NULL
+    unsigned char* bad_res2 = sumMod2(NULL, 4, bv11_5, 4);
+    if (!bad_res2) {
+        printf("xor NULL vec - error\n");
+    }
+
+    // logMul с разной длиной
+    if (bv11_4 && bv11_5) {
+        unsigned char* bad_mul = logMul(bv11_4, 4, bv11_5, 5);
+        if (!bad_mul) {
+            printf("logMul diff bits - error\n");
+        }
+    }
+
+    // logSum с разной длиной
+    if (bv11_4 && bv11_5) {
+        unsigned char* bad_sum = logSum(bv11_4, 4, bv11_5, 5);
+        if (!bad_sum) {
+            printf("logSum diff bits - error\n");
+        }
+    }
+
+    // set1 с битом вне диапазона
+    unsigned char test11_6[] = "11111111";
+    unsigned char* bv11_6 = convertStrToLongBv(test11_6, &cells);
+    if (bv11_6) {
+        unsigned char old = bv11_6[0];
+        set1(bv11_6, 8, 10);  // бит 10 >= 8
+        if (bv11_6[0] == old) {
+            printf("set1 out of range - no change (correct)\n");
+        }
+        free(bv11_6);
+        bv11_6 = NULL;
+    }
+
+    // set0 с битом вне диапазона
+    unsigned char test11_7[] = "00000000";
+    unsigned char* bv11_7 = convertStrToLongBv(test11_7, &cells);
+    if (bv11_7) {
+        unsigned char old = bv11_7[0];
+        set0(bv11_7, 8, 10);  // бит 10 >= 8
+        if (bv11_7[0] == old) {
+            printf("set0 out of range - no change (correct)\n");
+        }
+        free(bv11_7);
+        bv11_7 = NULL;
+    }
+
+    printf("\n");
+
+    // Тест 11: циклические сдвиги (100 итераций)
+    printf("test11 shift100\n");
+    unsigned char* vec100 = (unsigned char*)calloc(13, sizeof(unsigned char));
+    if (!vec100) {
+        printf("error allocating memory\n");
+        return 0;
+    }
+    inversion(vec100, 100);
+    printVectAsInMemory(vec100, 100);
+    printf("\n");
+    for (int i = 0; i < 100; i++) {
+        shiftRight(vec100, 100, 1);
+        printVectAsInMemory(vec100, 100);
+        printf("\n");
+    }
+    inversion(vec100, 100);
+    printVectAsInMemory(vec100, 100);
+    printf("\n");
+    for (int i = 0; i < 100; i++) {
+        shiftLeft(vec100, 100, 1);
+        printVectAsInMemory(vec100, 100);
+        printf("\n");
+    }
+    free(vec100);
+    vec100 = NULL;
 
     return 0;
 }
@@ -174,7 +508,11 @@ int main() {
 unsigned char* convertStrToLongBv(char* str, size_t* bits){
     if (!(str && bits))
         return NULL;
-    size_t len = 0, ix = 0;
+    size_t len = strlen(str);
+    if (len == 0) {
+        return NULL;
+    }
+    size_t  ix = 0;
     unsigned char mask = 1;
     len = strlen(str);
     *bits = len;  // сохраняем длину в битах
