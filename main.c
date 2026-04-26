@@ -13,7 +13,7 @@ void set0(unsigned char *vec, size_t bits, size_t bit);
 void inversion(unsigned char *vec, size_t bits);
 void shiftLeft(unsigned char *vec, size_t bits, size_t k);
 void shiftRight(unsigned char *vec, size_t bits, size_t k);
-void printBitVectorMemory(unsigned char* vec, size_t bits);
+void printVectAsInMemory(unsigned char* vec, size_t bits);
 
 int main() {
     char* str1 = NULL;
@@ -161,12 +161,12 @@ int main() {
     printf("set bit 0 0 in 0 %s\n", set0_str);
     free(set0_str);
 
+    printf("v1 in memory ");
+    printVectAsInMemory(vec1, bits1);
+    printf("\n");
+
     free(vec1);
     free(vec2);
-
-    printf("v1 in memory ");
-    printBitVectorMemory(vec1, bits1);
-    printf("\n");
 
     return 0;
 }
@@ -312,12 +312,88 @@ void inversion(unsigned char *vec, size_t bits) {
     }
 }
 
-void shiftLeft(unsigned char *vec, size_t bits, size_t k) {
+void shiftRight(unsigned char *vec, size_t bits, size_t k) {
+    if (!vec || !bits || k == 0)
+        return;
 
+    size_t bytes = ((bits - 1) / 8) + 1;
+    size_t byte_k = k / 8;
+    k = k % 8;
+
+    // сдвиг справа налево начинаем с последнего байта
+    for (size_t i = bytes - 1; i > 0; i--) {
+        size_t addr = i - byte_k;  // откуда берём данные
+
+        if (addr < bytes) {
+            // основной сдвиг вправо
+            vec[i] = vec[addr] >> k;
+
+            // перенос битов из соседнего байта
+            if (k && addr > 0) {
+                unsigned char mask = vec[addr - 1];
+                mask = mask << (8 - k);
+                vec[i] |= mask;
+            }
+        } else {
+            vec[i] = 0;
+        }
+    }
+
+    // обрабатываем нулевой байт
+    if (byte_k == 0) {
+        vec[0] = vec[0] >> k;
+    } else {
+        vec[0] = 0;
+    }
+
+    // очищаем хвост
+    if (bits % 8) {
+        size_t tail_len = 8 - (bits % 8);
+        unsigned char ones = ~0;  // все биты = 1
+        ones = ones >> tail_len;   // маска для значащих битов
+        vec[bytes - 1] &= ones;
+    }
 }
 
-void shiftRight(unsigned char *vec, size_t bits, size_t k) {
+void shiftLeft(unsigned char *vec, size_t bits, size_t k) {
+    if (!vec || !bits || !k) return;
 
+    size_t bytes = ((bits - 1) / 8) + 1;
+    size_t byte_k = k / 8;
+    k = k % 8;
+
+    // сдвиг слева направо (начинаем с первого байта)
+    for (size_t i = 0; i < bytes - 1; i++) {
+        size_t addr = i + byte_k;  // откуда берём данные
+
+        if (addr < bytes) {
+            vec[i] = vec[addr] << k;
+
+            // перенос битов из соседнего байта
+            if (k && (addr + 1) < bytes) {
+                unsigned char mask = vec[addr + 1];
+                mask = mask >> (8 - k);
+                vec[i] |= mask;
+            }
+        } else {
+            vec[i] = 0;
+        }
+    }
+
+    // обрабатываем последний байт
+    if (byte_k == 0) {
+        vec[bytes - 1] = vec[bytes - 1] << k;  // ← правильно
+    } else {
+        vec[bytes - 1] = 0;
+    }
+
+    // очищаем хвост
+    if (bits % 8) {
+        size_t tail_len = 8 - (bits % 8);
+        unsigned char ones = ~0;
+        ones = ones >> tail_len;
+        vec[bytes - 1] &= ones;
+    }
 }
 
 
