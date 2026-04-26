@@ -10,13 +10,15 @@ unsigned char* multiplyBitVectors(unsigned char* vec, unsigned char* vec2, size_
 unsigned char* xorBitVectors(unsigned char* vec, unsigned char* vec2, size_t cells, size_t cells2);
 int set_bit_1(unsigned char *vec, size_t len, size_t k);
 int set_bit_0(unsigned char *vec, size_t len, size_t k);
-unsigned char* inversBitVectorCopy(unsigned char* vec, size_t len);
+unsigned char* inversBitVector(unsigned char* vec, size_t len);
 int shift_left_bit_vector(unsigned char *vec, size_t len, size_t k);
 int shift_right_bit_vector(unsigned char *vec, size_t len, size_t k);
 
 int main() {
-    char* str1 = "10011000";
-    char* str2 = "00011010";
+    char* str1 = NULL;
+    char* str2 = NULL;
+    str1 = "10011000";
+    str2 = "00011010";
     //char* str1 = "00000000";
 
 
@@ -29,13 +31,13 @@ int main() {
     // Конвертация строк в битовые векторы
     unsigned char* vec1 = convertStrToLongBv(str1, &cells1);
     if (vec1 == NULL) {
-        printf("error1");
+        printf("error11");
         return 1;
     }
 
     unsigned char* vec2 = convertStrToLongBv(str2, &cells2);
     if (vec2 == NULL) {
-        printf("error1");
+        printf("error12");
         free(vec1);
         return 1;
     }
@@ -125,7 +127,7 @@ int main() {
     free(xor_res);
 
     // ~
-    unsigned char* inv_res = inversBitVectorCopy(vec1, len1);
+    unsigned char* inv_res = inversBitVector(vec1, len1);
     printf("xor * inv %s\n", convertBvToStr(multiplyBitVectors(xorBitVectors(vec1, vec2, cells1, cells2), inv_res, cells1, cells2), 1));
     if (inv_res == NULL) {
         printf("error3");
@@ -145,10 +147,10 @@ int main() {
     free(inv_str);
     free(inv_res);
 
-    // установка бита 3 в 1
-    int r1 = set_bit_1(vec1, len1, 6);
+    // установка бита 7 в 1
+    int r1 = set_bit_1(vec1, len1, 7);
     if (r1 != 0) {
-        printf("error1");
+        printf("error13");
         free(vec1);
         free(vec2);
         return 1;
@@ -163,8 +165,8 @@ int main() {
     printf("set1 %s\n", set1);
     free(set1);
 
-    // сброс бита 3 в 0
-    int r2 = set_bit_0(vec1, len1, 7);
+    // сброс бита 0 в 0
+    int r2 = set_bit_0(vec1, len1, 0);
     if (r2 != 0) {
         printf("error1");
         free(vec1);
@@ -191,21 +193,22 @@ unsigned char* convertStrToLongBv(char* str, size_t* cells){
     if (!(str && cells))
         return NULL;
     size_t len = 0, ix = 0;
-    unsigned char mask = (1 << 7);
+    unsigned char mask = 1;          // LSB: начинаем с младшего бита (1)
     len = strlen(str);
     *cells = ((len - 1) / 8) + 1;
-    unsigned char* vec = (unsigned char*)malloc(sizeof (unsigned char) * (*cells));
+    unsigned char* vec = (unsigned char*)malloc(sizeof(unsigned char) * (*cells));
     if (!(vec))
         return NULL;
     for (size_t i = 0; i < *cells; i++)
         vec[i] = 0;
     for (size_t i = 0; i < *cells; i++){
         for (size_t j = 0; j < 8 && (ix < len); j++){
-            vec[i] = vec[i] >> 1;
             if (str[ix] != '0')
-                vec[i] |= mask;
-            ix ++;
+                vec[i] |= mask; // устанавливаем текущий бит
+            mask = mask << 1; // следующий бит старше
+            ix++;
         }
+        mask = 1; // сбрасываем для следующего байта
     }
     return vec;
 }
@@ -285,7 +288,7 @@ unsigned char* xorBitVectors(unsigned char* vec, unsigned char* vec2, size_t cel
 
 int set_bit_1(unsigned char *vec, size_t len, size_t k)
 {
-    if (!vec || k >= len)
+    /*if (!vec || k >= len)
         return 1;
     size_t byte = k / 8;
     size_t bit = k % 8;
@@ -293,13 +296,19 @@ int set_bit_1(unsigned char *vec, size_t len, size_t k)
     size_t shift = 7 - bit; //01000000 при 2
 
     mask = mask << shift;
+    vec[byte] = vec[byte] | mask;*/
+    if (!vec || k >= len)
+        return 1;
+    size_t byte = k / 8;
+    size_t bit = k % 8;
+    unsigned char mask = 1 << bit;
     vec[byte] = vec[byte] | mask;
     return 0;
 }
 
 int set_bit_0(unsigned char *vec, size_t len, size_t k)
 {
-    if (!vec || k >= len)
+    /*if (!vec || k >= len)
         return 1;
     size_t byte = k / 8;
     size_t bit = k % 8;
@@ -307,11 +316,17 @@ int set_bit_0(unsigned char *vec, size_t len, size_t k)
     size_t shift = 7 - bit;
 
     mask = mask << shift;
+    vec[byte] = vec[byte] & ~mask;*/
+    if (!vec || k >= len)
+        return 1;
+    size_t byte = k / 8;
+    size_t bit = k % 8;
+    unsigned char mask = 1 << bit;
     vec[byte] = vec[byte] & ~mask;
     return 0;
 }
 
-unsigned char* inversBitVectorCopy(unsigned char* vec, size_t len)
+unsigned char* inversBitVector(unsigned char* vec, size_t len)
 {
     if (!vec)
         return NULL;
