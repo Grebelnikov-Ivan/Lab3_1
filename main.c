@@ -13,6 +13,7 @@ void set0(unsigned char *vec, size_t bits, size_t bit);
 void inversion(unsigned char *vec, size_t bits);
 void shiftLeft(unsigned char *vec, size_t bits, size_t k);
 void shiftRight(unsigned char *vec, size_t bits, size_t k);
+void printBitVectorMemory(unsigned char* vec, size_t bits);
 
 int main() {
     char* str1 = NULL;
@@ -24,7 +25,7 @@ int main() {
     size_t bits2 = strlen(str2);
 
     // Конвертация строк в битовые векторы
-    unsigned char* vec1 = convertStrToLongBv(str1, &bits1);
+    unsigned char* vec1 = convertStrToLongBv(str1, &bits1); // & адрес на bits1
     if (vec1 == NULL) {
         printf("error11");
         return 1;
@@ -55,8 +56,8 @@ int main() {
         return 1;
     }
 
-    printf("v1: %s\n", vec1_str);
-    printf("v2: %s\n", vec2_str);
+    printf("v1 %s\n", vec1_str);
+    printf("v2 %s\n", vec2_str);
     free(vec1_str);
     free(vec2_str);
     printf("\n");
@@ -77,7 +78,7 @@ int main() {
         free(vec2);
         return 1;
     }
-    printf("logSum  %s\n", add_str);
+    printf("+  %s\n", add_str);
     free(add_str);
     free(add_res);
 
@@ -97,7 +98,7 @@ int main() {
         free(vec2);
         return 1;
     }
-    printf("logMul  %s\n", mul_str);
+    printf("&  %s\n", mul_str);
     free(mul_str);
     free(mul_res);
 
@@ -117,7 +118,7 @@ int main() {
         free(vec2);
         return 1;
     }
-    printf("sumMod2 %s\n", xor_str);
+    printf("xor %s\n", xor_str);
     free(xor_str);
     free(xor_res);
 
@@ -130,13 +131,13 @@ int main() {
         free(vec2);
         return 1;
     }
-    printf("inversion v1: %s\n", inv_str);
+    printf("~ v1 %s\n", inv_str);
     free(inv_str);
 
     // инвертируем обратно для дальнейших тестов
     inversion(vec1, bits1);
 
-    // установка бита 7 в 1
+    // установка бита 7 в 0
     set1(vec1, bits1, 7);
     char* set1_str = convertBvToStr(vec1, bits1);
     if (set1_str == NULL) {
@@ -145,11 +146,11 @@ int main() {
         free(vec2);
         return 1;
     }
-    printf("set1 bit7: %s\n", set1_str);
+    printf("set bit 1 7 in 0 %s\n", set1_str);
     free(set1_str);
 
-    // сброс бита 7 в 0
-    set0(vec1, bits1, 7);
+    // сброс бита 0 в 0
+    set0(vec1, bits1, 0);
     char* set0_str = convertBvToStr(vec1, bits1);
     if (set0_str == NULL) {
         printf("error2");
@@ -157,11 +158,15 @@ int main() {
         free(vec2);
         return 1;
     }
-    printf("set0 bit7: %s\n", set0_str);
+    printf("set bit 0 0 in 0 %s\n", set0_str);
     free(set0_str);
 
     free(vec1);
     free(vec2);
+
+    printf("v1 in memory ");
+    printBitVectorMemory(vec1, bits1);
+    printf("\n");
 
     return 0;
 }
@@ -312,5 +317,26 @@ void shiftLeft(unsigned char *vec, size_t bits, size_t k) {
 }
 
 void shiftRight(unsigned char *vec, size_t bits, size_t k) {
-    
+
+}
+
+
+void printVectAsInMemory(unsigned char* vec, size_t bits) {
+    if (!vec) {
+        printf("NULL");
+        return;
+    }
+
+    size_t bytes = ((bits - 1) / 8) + 1;
+
+    for (size_t i = 0; i < bytes; i++) {
+        unsigned char mask = 1 << 7;  // начинаем со старшего бита
+        for (size_t j = 0; j < 8; j++) {
+            if ((vec[i] & mask) != 0)
+                printf("1");
+            else
+                printf("0");
+            mask = mask >> 1;  // сдвигаем к младшим битам
+        }
+    }
 }
