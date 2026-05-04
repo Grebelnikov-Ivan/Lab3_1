@@ -14,6 +14,7 @@ void inversion(unsigned char *vec, size_t bits);
 void shiftLeft(unsigned char *vec, size_t bits, size_t k);
 void shiftRight(unsigned char *vec, size_t bits, size_t k);
 void printVectAsInMemory(unsigned char* vec, size_t bits);
+int check_correctness_ASCII(char* str);
 
 int main() {
     char* str1 = NULL;
@@ -208,9 +209,7 @@ int main() {
     free(vec2);
     vec2 = NULL;
 
-    // ==================== ДОПОЛНИТЕЛЬНЫЕ ТЕСТЫ ====================
-
-    // Тест 1: 1000111010110101
+    // 1000111010110101
     printf("test1 ");
     int cells = 0;
     unsigned char test1[] = "1000111010110101";
@@ -224,7 +223,7 @@ int main() {
     free(bv1);
     bv1 = NULL;
 
-    // Тест 2: длинная строка 122 бита
+    // длинная строка 122 бита
     printf("test2 ");
     unsigned char test2[] = "00111000011011100001101110000010001110110100111011010011101110011100001101110000110111000001000111011010011101101001110111";
     unsigned char* bv2 = convertStrToLongBv(test2, &cells);
@@ -247,7 +246,7 @@ int main() {
     free(bv2);
     bv2 = NULL;
 
-    // Тест 3: сумма по модулю 2 (61 бит)
+    // сумма по модулю 2
     printf("test3 xor\n");
     unsigned char test3_1[] = "1100010110110001011011000101101100010110110001011011000101101";
     unsigned char test3_2[] = "1111110111011111011101111101100100101101100010110110001011010";
@@ -283,7 +282,7 @@ int main() {
     free(vec3_3);
     vec3_3 = NULL;
 
-    // Тест 4: инверсия
+    // инверсия
     printf("test4 inv\n");
     unsigned char test4[] = "1000111010110011";
     unsigned char* vec4 = convertStrToLongBv(test4, &cells);
@@ -299,7 +298,7 @@ int main() {
     free(vec4);
     vec4 = NULL;
 
-    // Тест 5: сдвиг вправо на 20 с восстановлением
+    // сдвиг вправо на 20 с восстановлением
     printf("test5 >>20\n");
     unsigned char test5[] = "0011100001101110000110111000001000111011010011101101001110111";
     unsigned char* vec5 = convertStrToLongBv(test5, &cells);
@@ -318,7 +317,7 @@ int main() {
     free(vec5);
     vec5 = NULL;
 
-    // Тест 6: сдвиг влево на 30 с восстановлением
+    // сдвиг влево на 30 с восстановлением
     printf("test6 <<30\n");
     unsigned char test6[] = "0011100001101110000110111000001000111011010011101101001110111";
     unsigned char* vec6 = convertStrToLongBv(test6, &cells);
@@ -337,7 +336,7 @@ int main() {
     free(vec6);
     vec6 = NULL;
 
-    // Тест 7: установка/сброс битов
+    // установка/сброс битов
     printf("test7 set1/set0\n");
     unsigned char test7[] = "01111111";
     unsigned char* vec7 = convertStrToLongBv(test7, &cells);
@@ -356,18 +355,18 @@ int main() {
     free(vec7);
     vec7 = NULL;
 
-    // Тест 8: преобразование "100001"
-    printf("test8 ");
-    unsigned char test8[] = "100001";
-    unsigned char* bv8 = convertStrToLongBv(test8, &cells);
-    if (bv8) {
-        printVectAsInMemory(bv8, 6);
-        printf("\n\n");
-        free(bv8);
-        bv8 = NULL;
-    }
+//    // преобразование "100001"
+//    printf("test8 ");
+//    unsigned char test8[] = "100001";
+//    unsigned char* bv8 = convertStrToLongBv(test8, &cells);
+//    if (bv8) {
+//        printVectAsInMemory(bv8, 6);
+//        printf("\n\n");
+//        free(bv8);
+//        bv8 = NULL;
+//    }
 
-    // Тест 9: преобразование "10110"
+    // преобразование "10110"
     printf("test9 ");
     unsigned char test9[] = "10110";
     unsigned char* bv9 = convertStrToLongBv(test9, &cells);
@@ -378,7 +377,7 @@ int main() {
         bv9 = NULL;
     }
 
-    // Тест 10: преобразование "1"
+    //  преобразование "1"
     printf("test10 ");
     unsigned char test10[] = "1";
     unsigned char* bv10 = convertStrToLongBv(test10, &cells);
@@ -388,8 +387,25 @@ int main() {
         free(bv10);
         bv10 = NULL;
     }
+    else{
+        printf("memory is not allocated or word length is 0");
+        printf("\n\n");
+    }
 
-    printf("test11 errors\n");
+    //  преобразование ""
+    printf("test11 ");
+    unsigned char test11[] = "";
+    unsigned char* bv11 = convertStrToLongBv(test11, &cells);
+    if (bv11) {
+        printVectAsInMemory(bv11, 1);
+        printf("\n\n");
+        free(bv11);
+        bv11 = NULL;
+    }
+    else{
+        printf("memory is not allocated or word length is 0");
+        printf("\n\n");
+    }
 
     // Пустая строка
     unsigned char test11_1[] = "";
@@ -405,7 +421,7 @@ int main() {
     }
 
     // NULL bits
-    unsigned char* bv11_3 = convertStrToLongBv(test8, NULL);
+    unsigned char* bv11_3 = convertStrToLongBv(test9, NULL);
     if (!bv11_3) {
         printf("NULL cells - error\n");
     }
@@ -420,10 +436,10 @@ int main() {
         if (!bad_res) {
             printf("xor dif bits - error\n");
         }
-        free(bv11_4);
-        free(bv11_5);
-        bv11_4 = NULL;
-        bv11_5 = NULL;
+//        free(bv11_4);
+//        free(bv11_5);
+//        bv11_4 = NULL;
+//        bv11_5 = NULL;
     }
 
     // xor с NULL
@@ -476,8 +492,8 @@ int main() {
 
     printf("\n");
 
-    // Тест 11: циклические сдвиги (100 итераций)
-    printf("test11 shift100\n");
+    // циклические сдвиги
+    printf("test12 shift100\n");
     unsigned char* vec100 = (unsigned char*)calloc(13, sizeof(unsigned char));
     if (!vec100) {
         printf("error allocating memory\n");
@@ -505,17 +521,34 @@ int main() {
     return 0;
 }
 
+int check_correctness_ASCII(char* str){
+    if (str == NULL) {
+        return 1;
+    }
+    int i = 0;
+    if (str[strlen(str)] != '\0')
+        return 3;
+    while (str[i] != '\0'){
+        unsigned char uc = (unsigned char)str[i];
+        if (uc > 127)
+            return 4;
+        i ++;
+    }
+    return 0;
+}
+
 unsigned char* convertStrToLongBv(char* str, size_t* bits){
     if (!(str && bits))
+        return NULL;
+    if (check_correctness_ASCII(str) != 0)
         return NULL;
     size_t len = strlen(str);
     if (len == 0) {
         return NULL;
     }
+    *bits = len;  // сохраняем длину в битах
     size_t  ix = 0;
     unsigned char mask = 1;
-    len = strlen(str);
-    *bits = len;  // сохраняем длину в битах
     size_t bytes = ((len - 1) / 8) + 1;
     unsigned char* vec = (unsigned char*)malloc(sizeof(unsigned char) * bytes);
     if (!(vec))
@@ -615,8 +648,8 @@ unsigned char* sumMod2(unsigned char* vecA, size_t bitsA, unsigned char* vecB, s
 void set1(unsigned char *vec, size_t bits, size_t bit) {
     if (!vec || bit >= bits)
         return;
-    size_t byte = bit / 8;
-    size_t b = bit % 8;
+    size_t byte = bit / 8; // номер байта, где лежит этот бит
+    size_t b = bit % 8;  // позиция бита внутри байта
     vec[byte] |= (1 << b);
 }
 
@@ -651,7 +684,7 @@ void inversion(unsigned char *vec, size_t bits) {
 }
 
 void shiftRight(unsigned char *vec, size_t bits, size_t k) {
-    if (!vec || !bits || k == 0)
+    if (!vec || !bits || !k)
         return;
 
     size_t bytes = ((bits - 1) / 8) + 1;
@@ -672,7 +705,8 @@ void shiftRight(unsigned char *vec, size_t bits, size_t k) {
                 mask = mask << (8 - k);
                 vec[i] |= mask;
             }
-        } else {
+        }
+        else {
             vec[i] = 0;
         }
     }
@@ -694,21 +728,21 @@ void shiftRight(unsigned char *vec, size_t bits, size_t k) {
 }
 
 void shiftLeft(unsigned char *vec, size_t bits, size_t k) {
-    if (!vec || !bits || !k) return;
+    if (!vec || !bits || k == 0) 
+        return;
 
     size_t bytes = ((bits - 1) / 8) + 1;
     size_t byte_k = k / 8;
     k = k % 8;
-
     // сдвиг слева направо (начинаем с первого байта)
     for (size_t i = 0; i < bytes - 1; i++) {
-        size_t addr = i + byte_k;  // откуда берём данные
+        size_t addr = i + byte_k; // откуда берём данные
 
-        if (addr < bytes) {
+        if (addr < bytes) { // основной сдвиг влево
             vec[i] = vec[addr] << k;
 
-            // перенос битов из соседнего байта
-            if (k && (addr + 1) < bytes) {
+            // перенос битов из соседнего старшего байта
+            if (k && (addr + 1) < bytes) {  // проверка,  есть байт справа
                 unsigned char mask = vec[addr + 1];
                 mask = mask >> (8 - k);
                 vec[i] |= mask;
@@ -717,10 +751,9 @@ void shiftLeft(unsigned char *vec, size_t bits, size_t k) {
             vec[i] = 0;
         }
     }
-
-    // обрабатываем последний байт
+    //  последний байт
     if (byte_k == 0) {
-        vec[bytes - 1] = vec[bytes - 1] << k;  // ← правильно
+        vec[bytes - 1] = vec[bytes - 1] << k;
     } else {
         vec[bytes - 1] = 0;
     }
@@ -736,21 +769,29 @@ void shiftLeft(unsigned char *vec, size_t bits, size_t k) {
 
 
 void printVectAsInMemory(unsigned char* vec, size_t bits) {
-    if (!vec) {
-        printf("NULL");
+    if (!vec || bits == 0) {
         return;
     }
 
     size_t bytes = ((bits - 1) / 8) + 1;
+    size_t xi = 0;  // счётчик напечатанных бит
 
     for (size_t i = 0; i < bytes; i++) {
         unsigned char mask = 1 << 7;  // начинаем со старшего бита
-        for (size_t j = 0; j < 8; j++) {
+
+        // сколько бит выводить в байте
+        size_t bits_in_this_byte = 8;
+        if (i == bytes - 1 && bits % 8 != 0) {
+            bits_in_this_byte = bits % 8;  // последн
+        }
+
+        for (size_t j = 0; j < bits_in_this_byte; j++) {
             if ((vec[i] & mask) != 0)
                 printf("1");
             else
                 printf("0");
-            mask = mask >> 1;  // сдвигаем к младшим битам
+            mask = mask >> 1;
+            xi++;
         }
     }
 }
