@@ -1,4 +1,4 @@
-// define 1
+// define 1.2
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -728,7 +728,7 @@ void shiftRight(unsigned char *vec, size_t bits, size_t k) {
 }
 
 void shiftLeft(unsigned char *vec, size_t bits, size_t k) {
-    if (!vec || !bits || k == 0) 
+    if (!vec || !bits || k == 0)
         return;
 
     size_t bytes = ((bits - 1) / 8) + 1;
