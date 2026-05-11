@@ -1,4 +1,4 @@
-// define 1.2
+// defend 1.3
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -171,7 +171,7 @@ int main() {
     inversion(vec1, bits1);
 
     // установка бита 7 в 1
-    set1(vec1, bits1, 7);
+    set1(vec1, bits1, 2);
     char* set1_str = convertBvToStr(vec1, bits1);
     if (set1_str == NULL) {
         printf("error2");
@@ -186,7 +186,7 @@ int main() {
     set1_str = NULL;
 
     // сброс бита 0 в 0
-    set0(vec1, bits1, 0);
+    set0(vec1, bits1, 4);
     char* set0_str = convertBvToStr(vec1, bits1);
     if (set0_str == NULL) {
         printf("error2");
@@ -494,7 +494,7 @@ int main() {
 
     // циклические сдвиги
     printf("test12 shift100\n");
-    unsigned char* vec100 = (unsigned char*)calloc(13, sizeof(unsigned char));
+    unsigned char* vec100 = (unsigned char*)calloc(14, sizeof(unsigned char));
     if (!vec100) {
         printf("error allocating memory\n");
         return 0;
@@ -507,6 +507,7 @@ int main() {
         printVectAsInMemory(vec100, 100);
         printf("\n");
     }
+    printf("\n");
     inversion(vec100, 100);
     printVectAsInMemory(vec100, 100);
     printf("\n");
@@ -780,12 +781,12 @@ void printVectAsInMemory(unsigned char* vec, size_t bits) {
         unsigned char mask = 1 << 7;  // начинаем со старшего бита
 
         // сколько бит выводить в байте
-        size_t bits_in_this_byte = 8;
+        size_t b = 8;
         if (i == bytes - 1 && bits % 8 != 0) {
-            bits_in_this_byte = bits % 8;  // последн
+            b = bits % 8;  // последн
         }
 
-        for (size_t j = 0; j < bits_in_this_byte; j++) {
+        for (size_t j = 0; j < b; j++) {
             if ((vec[i] & mask) != 0)
                 printf("1");
             else
