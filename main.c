@@ -218,7 +218,7 @@ int main() {
         printf("error converting str\n");
         return 0;
     }
-    printVectAsInMemory(bv1, 16);
+    printVectAsInMemory(bv1, cells);
     printf("\n\n");
     free(bv1);
     bv1 = NULL;
@@ -306,13 +306,13 @@ int main() {
         printf("error converting\n");
         return 0;
     }
-    printVectAsInMemory(vec5, 66);
+    printVectAsInMemory(vec5, 61);
     printf("\n");
     shiftRight(vec5, 61, 20);
-    printVectAsInMemory(vec5, 66);
+    printVectAsInMemory(vec5, 61);
     printf("\nback ");
     shiftLeft(vec5, 61, 20);
-    printVectAsInMemory(vec5, 66);
+    printVectAsInMemory(vec5, 61);
     printf("\n\n");
     free(vec5);
     vec5 = NULL;
@@ -494,7 +494,9 @@ int main() {
 
     // циклические сдвиги
     printf("test12 shift100\n");
-    unsigned char* vec100 = (unsigned char*)calloc(14, sizeof(unsigned char));
+    size_t test_bits = 100;
+    size_t test_bytes = (test_bits + 7) / 8;  // = 13
+    unsigned char* vec100 = (unsigned char*)calloc(test_bytes, sizeof(unsigned char));
     if (!vec100) {
         printf("error allocating memory\n");
         return 0;
@@ -662,6 +664,7 @@ void set0(unsigned char *vec, size_t bits, size_t bit) {
     vec[byte] &= ~(1 << b);
 }
 
+
 void inversion(unsigned char *vec, size_t bits) {
     if (!vec)
         return;
@@ -672,127 +675,108 @@ void inversion(unsigned char *vec, size_t bits) {
     for (size_t i = 0; i < bytes; i++) {
         vec[i] = ~vec[i];
     }
-
-    // очищаем незначащие биты (хвост)
     if (last_bits != 0) {
-        size_t last_byte_idx = bytes - 1;
-        unsigned char mask = 0;
-        for (size_t j = 0; j < last_bits; j++) {
-            mask |= (1 << j);  // маска младших битов
-        }
-        vec[last_byte_idx] &= mask;
+        unsigned char mask = -1 >> (8 - last_bits);
+        vec[bytes - 1] &= mask;
     }
 }
 
+
 void shiftRight(unsigned char *vec, size_t bits, size_t k) {
-    if (!vec || !bits || !k)
-        return;
+    if (!vec || bits == 0 || k == 0) return;
 
     size_t bytes = ((bits - 1) / 8) + 1;
-    size_t byte_k = k / 8;
-    k = k % 8;
+    size_t byte_shift = k / 8;
+    size_t bit_shift = k % 8;
 
-    // сдвиг справа налево начинаем с последнего байта
-    for (size_t i = bytes - 1; i > 0; i--) {
-        size_t addr = i - byte_k;  // откуда берём данные
-
-        if (addr < bytes) {
-            // основной сдвиг вправо
-            vec[i] = vec[addr] >> k;
-
-            // перенос битов из соседнего байта
-            if (k && addr > 0) {
-                unsigned char mask = vec[addr - 1];
-                mask = mask << (8 - k);
-                vec[i] |= mask;
-            }
-        }
-        else {
+    // сдвигаем на целые вправа
+    if (byte_shift > 0) {
+        for (size_t i = bytes - 1; i >= byte_shift; i--)
+            vec[i] = vec[i - byte_shift];
+        for (size_t i = 0; i < byte_shift && i < bytes; i++)
             vec[i] = 0;
+    }
+
+    if (bit_shift == 0) {
+        // Очистка хвоста без арифметики
+        if (bits % 8) {
+            unsigned char mask = -1 >> (8 - (bits % 8));
+            vec[bytes - 1] &= mask;
         }
+        return;
     }
 
-    // обрабатываем нулевой байт
-    if (byte_k == 0) {
-        vec[0] = vec[0] >> k;
-    } else {
-        vec[0] = 0;
+    // битовый сдвиг справа на лево
+    unsigned char s = 0; // перенос из младшего (предыдущего)
+    for (size_t i = bytes; i-- > 0; ) {
+        unsigned char cur = vec[i];
+        vec[i] = (s << (8 - bit_shift)) | (cur >> bit_shift);
+        s = cur;
     }
 
-    // очищаем хвост
+    // отчищаем хвост
     if (bits % 8) {
-        size_t tail_len = 8 - (bits % 8);
-        unsigned char ones = ~0;  // все биты = 1
-        ones = ones >> tail_len;   // маска для значащих битов
-        vec[bytes - 1] &= ones;
+        unsigned char mask = -1 >> (8 - (bits % 8));
+        vec[bytes - 1] &= mask;
     }
 }
 
 void shiftLeft(unsigned char *vec, size_t bits, size_t k) {
-    if (!vec || !bits || k == 0)
-        return;
+    if (!vec || bits == 0 || k == 0) return;
 
     size_t bytes = ((bits - 1) / 8) + 1;
-    size_t byte_k = k / 8;
-    k = k % 8;
-    // сдвиг слева направо (начинаем с первого байта)
-    for (size_t i = 0; i < bytes - 1; i++) {
-        size_t addr = i + byte_k; // откуда берём данные
+    size_t byte_shift = k / 8;
+    size_t bit_shift = k % 8;
 
-        if (addr < bytes) { // основной сдвиг влево
-            vec[i] = vec[addr] << k;
-
-            // перенос битов из соседнего старшего байта
-            if (k && (addr + 1) < bytes) {  // проверка,  есть байт справа
-                unsigned char mask = vec[addr + 1];
-                mask = mask >> (8 - k);
-                vec[i] |= mask;
-            }
-        } else {
+    // сдвиг на целые байты влево
+    if (byte_shift > 0) {
+        for (size_t i = 0; i < bytes - byte_shift; i++)
+            vec[i] = vec[i + byte_shift];
+        for (size_t i = bytes - byte_shift; i < bytes; i++)
             vec[i] = 0;
-        }
-    }
-    //  последний байт
-    if (byte_k == 0) {
-        vec[bytes - 1] = vec[bytes - 1] << k;
-    } else {
-        vec[bytes - 1] = 0;
     }
 
-    // очищаем хвост
+    if (bit_shift == 0) {
+        if (bits % 8) {
+            unsigned char mask = -1 >> (8 - (bits % 8));
+            vec[bytes - 1] &= mask;
+        }
+        return;
+    }
+
+    // битовый сдвиг, идём слево на право
+    unsigned char s = 0;
+    for (size_t i = 0; i < bytes; i++) {
+        unsigned char cur = vec[i];
+        vec[i] = (cur << bit_shift) | (s >> (8 - bit_shift));
+        s = cur;
+    }
+
+    // очистка хвоста
     if (bits % 8) {
-        size_t tail_len = 8 - (bits % 8);
-        unsigned char ones = ~0;
-        ones = ones >> tail_len;
-        vec[bytes - 1] &= ones;
+        unsigned char mask = -1 >> (8 - (bits % 8));
+        vec[bytes - 1] &= mask;
     }
 }
 
-
 void printVectAsInMemory(unsigned char* vec, size_t bits) {
-    if (!vec || bits == 0) {
-        return;
-    }
+    if (!vec || bits == 0) return;
 
     size_t bytes = ((bits - 1) / 8) + 1;
-    size_t xi = 0;  // счётчик напечатанных бит
+    size_t cnt = 0;
 
-    for (size_t i = 0; i < bytes; i++) {
-        unsigned char mask = 1 << 7;  // начинаем со старшего бита
-
-        // сколько бит выводить в байте
+    for (size_t i = bytes; i-- > 0 && cnt < bits; ) {
         size_t b = 8;
-        if (i == bytes - 1 && bits % 8 != 0) {
-            b = bits % 8;  // последн
-        }
-
-        for (size_t j = 0; j < b; j++) {
-            if ((vec[i] & mask) != 0)
+        if (i == bytes - 1 && bits % 8 != 0)
+            b = bits % 8;
+        unsigned char m = 1 << (b - 1);
+        for (size_t j = 0; j < b && cnt < bits; j++) {
+            if ((vec[i] & m) != 0)
                 printf("1");
             else
                 printf("0");
-            mask = mask >> 1;
-            xi++;
+            m >>= 1;
+            cnt++;
         }
     }
 }
